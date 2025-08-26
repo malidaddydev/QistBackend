@@ -48,7 +48,7 @@ const getSubcategories = async (req, res) => {
 
     const subcategories = await prisma.subcategories.findMany({
       where,
-      include: { categories: true },
+      include: true,
       orderBy: { [sortField]: order.toLowerCase() === "desc" ? "desc" : "asc" },
       skip,
       take,

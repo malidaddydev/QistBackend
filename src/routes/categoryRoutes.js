@@ -13,7 +13,7 @@ const {
 
 router.get(
   '/all-categories',
-  authenticateToken,
+  
   [
     query('page').optional().isInt({ min: 1 }).toInt(),
     query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
@@ -22,8 +22,9 @@ router.get(
     query('sort').optional().isIn(['id', 'name', 'isActive']),
     query('order').optional().isIn(['asc', 'desc']),
   ],
-  getCategories
+  getCategories   
 );
+
 router.get('/categories', getOnlyTrueCategories);
 
 router.post(
