@@ -48,16 +48,26 @@ const getSubcategories = async (req, res) => {
 
     const subcategories = await prisma.subcategories.findMany({
       where,
-      include: true,
+      include: {
+        categories:{select:{
+          name:true
+        }}
+      },
       orderBy: { [sortField]: order.toLowerCase() === "desc" ? "desc" : "asc" },
       skip,
       take,
     });
 
+    const formatted = subcategories.map(sc => ({
+  ...sc,
+  category_name: sc.categories?.name || null, // extract name
+  categories: undefined // remove original nested object if not needed
+}));
+
     const totalItems = await prisma.subcategories.count({ where });
 
     res.status(200).json({
-      data: subcategories,
+      data: formatted,
       pagination: {
         totalItems,
         totalPages: Math.ceil(totalItems / limit),
