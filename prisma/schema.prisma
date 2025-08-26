@@ -44,9 +44,9 @@ model subcategories {
 model Product {
   id          Int          @id @default(autoincrement())
   category_id  Int?
-  category    categories      @relation(fields: [category_id], references: [id])
+  category    categories?      @relation(fields: [category_id], references: [id])
   subcategory_id  Int?
-  subcategory    subcategories      @relation(fields: [subcategory_id], references: [id])
+  subcategory    subcategories?      @relation(fields: [subcategory_id], references: [id])
   name        String
   brand       String?
   short_description String?       // short marketing description
