@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URLmodel admins {
+  id        Int       @id @default(autoincrement())
+  fullName  String    @db.VarChar(255)
+  email     String    @unique(map: "email") @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  createdAt DateTime? @default(now()) @db.DateTime(0)
+}
+
+model categories {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  description   String?         @db.Text
+  created_at    DateTime        @default(now()) @db.Timestamp(0)
+  updated_at    DateTime        @default(now()) @db.Timestamp(0)
+  isActive      Boolean?        @default(true)
+  subcategories subcategories[]
+}
+
+model subcategories {
+  id          Int        @id @default(autoincrement())
+  category_id Int
+  name        String     @db.VarChar(255)
+  created_at  DateTime   @default(now()) @db.Timestamp(0)
+  updated_at  DateTime   @default(now()) @db.Timestamp(0)
+  isActive    Boolean?   @default(true)
+  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "subcategories_ibfk_1")
+
+  @@index([category_id], map: "category_id")
+}
+")
+}
+
