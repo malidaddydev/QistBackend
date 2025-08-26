@@ -4,7 +4,10 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URLmodel admins {
+  url      = env("DATABASE_URL")
+}
+
+model admins {
   id        Int       @id @default(autoincrement())
   fullName  String    @db.VarChar(255)
   email     String    @unique(map: "email") @db.VarChar(255)
@@ -33,6 +36,3 @@ model subcategories {
 
   @@index([category_id], map: "category_id")
 }
-")
-}
-
