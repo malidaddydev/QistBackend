@@ -107,8 +107,8 @@ const getProductById = async (req, res) => {
       include: {
         ProductImage: true,
         ProductInstallments: true,
-        category: { select: { name: true } },
-        subcategory: { select: { name: true } },
+        categories: { select: { name: true } },
+        subcategories: { select: { name: true } },
       },
     });
 
@@ -139,8 +139,8 @@ const getAllProducts = async (req, res) => {
       include: {
         ProductImage: true,
         ProductInstallments: true,
-        category: { select: { name: true } },
-        subcategory: { select: { name: true } },
+        categories: { select: { name: true } },
+        subcategories: { select: { name: true } },
       },
     });
 
