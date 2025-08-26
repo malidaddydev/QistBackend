@@ -22,6 +22,7 @@ model Product {
   categories        categories?    @relation(fields: [category_id], references: [id])
   subcategories     subcategories? @relation(fields: [subcategory_id], references: [id])
   ProductImage      ProductImage[]
+  ProductInstallments      ProductInstallments[]
 
   @@index([category_id], map: "Product_category_id_fkey")
   @@index([subcategory_id], map: "Product_subcategory_id_fkey")
@@ -32,6 +33,17 @@ model ProductImage {
   url        String
   product_id Int
   Product    Product @relation(fields: [product_id], references: [id])
+
+  @@index([product_id], map: "ProductImage_product_id_fkey")
+}
+
+model ProductInstallments {
+  id         Int     @id @default(autoincrement())
+  minimum_installment_amount        Float
+  maximum_installment_month        Int
+  product_id Int
+  Product    Product @relation(fields: [product_id], references: [id])
+  
 
   @@index([product_id], map: "ProductImage_product_id_fkey")
 }

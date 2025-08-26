@@ -3,7 +3,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const subcategoryRoutes = require('./routes/subcategoryRoutes');
-// const productRoutes = require('./routes/');
+const productRoutes = require('./routes/productRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api', subcategoryRoutes);
+app.use('/api', productRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
