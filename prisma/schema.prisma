@@ -17,8 +17,8 @@ model Product {
   long_description  String?        @db.Text
   price             Float
   stock             Int            @default(0)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime
+  createdAt         DateTime?       @default(now())
+  updatedAt         DateTime ?       @default(now())
   categories        categories?    @relation(fields: [category_id], references: [id])
   subcategories     subcategories? @relation(fields: [subcategory_id], references: [id])
   ProductImage      ProductImage[]
