@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, query } = require('express-validator');
-const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authenticateToken } = require('../middleware/authMiddleware');
 const {
   getSubcategories,
   createSubcategory,
@@ -30,6 +30,7 @@ router.post(
   [
     body('name').isString().notEmpty().withMessage('Name is required'),
     body('category_id').isInt().withMessage('Valid category ID is required'),
+    body('description').isString().optional().withMessage('Description must be a string'),
     body('isActive').isBoolean().optional().withMessage('isActive must be a boolean'),
   ],
   createSubcategory
@@ -41,6 +42,7 @@ router.put(
   [
     body('name').isString().notEmpty().withMessage('Name is required'),
     body('category_id').isInt().withMessage('Valid category ID is required'),
+    body('description').isString().optional().withMessage('Description must be a string'),
   ],
   updateSubcategory
 );

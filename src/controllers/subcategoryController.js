@@ -12,63 +12,52 @@ const getSubcategories = async (req, res) => {
     sort = "name",
     order = "asc",
   } = req.query;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
+  const take = Number(limit);
 
   try {
     // Filters
     const where = {
-      category: {}, // to allow join filtering later
+      AND: [],
     };
 
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { id: isNaN(search) ? undefined : Number(search) },
-        { category: { name: { contains: search } } },
-      ].filter(Boolean);
+      where.AND.push({
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { categories: { name: { contains: search, mode: "insensitive" } } },
+          { id: isNaN(search) ? undefined : Number(search) },
+        ],
+      });
     }
 
-    if (status === "active") where.isActive = true;
-    if (status === "inactive") where.isActive = false;
+    if (status === "active") {
+      where.AND.push({ isActive: true });
+    } else if (status === "inactive") {
+      where.AND.push({ isActive: false });
+    }
 
     // Sorting
-    const validSortFields = ["id", "name", "isActive", "category.name"];
-    const sortField = validSortFields.includes(sort) ? sort : "name";
-    const sortOrder = order.toLowerCase() === "desc" ? "desc" : "asc";
+    const validSortFields = {
+      id: "id",
+      name: "name",
+      "c.name": "categories.name", // nested relation
+      isActive: "isActive",
+    };
+    const sortField = validSortFields[sort] || "name";
 
-    // Prisma needs nested ordering if sorting by category name
-    let orderBy = {};
-    if (sortField === "category.name") {
-      orderBy = { category: { name: sortOrder } };
-    } else {
-      orderBy = { [sortField]: sortOrder };
-    }
-
-    // Fetch with join
     const subcategories = await prisma.subcategories.findMany({
       where,
-      skip: Number(offset),
-      take: Number(limit),
-      orderBy,
-      include: {
-        category: { select: { id: true, name: true } },
-      },
+      include: { categories: true },
+      orderBy: { [sortField]: order.toLowerCase() === "desc" ? "desc" : "asc" },
+      skip,
+      take,
     });
 
-    // Count
     const totalItems = await prisma.subcategories.count({ where });
 
-    // Format response (flat with category_name)
-    const formatted = subcategories.map((s) => ({
-      id: s.id,
-      name: s.name,
-      category_id: s.categoryId,
-      category_name: s.category.name,
-      isActive: s.isActive,
-    }));
-
     res.status(200).json({
-      data: formatted,
+      data: subcategories,
       pagination: {
         totalItems,
         totalPages: Math.ceil(totalItems / limit),
@@ -88,22 +77,27 @@ const createSubcategory = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name, category_id, isActive = true } = req.body;
+  const { name, category_id, description, isActive = true } = req.body;
 
   try {
-    // Check if category exists
-    const category = await prisma.category.findUnique({
+    // Check category exists
+    const category = await prisma.categories.findUnique({
       where: { id: Number(category_id) },
     });
     if (!category) {
       return res.status(400).json({ error: "Invalid category ID" });
     }
 
-    const newSubcategory = await prisma.subcategories.create({
-      data: { name, categoryId: Number(category_id), isActive },
+    const subcategory = await prisma.subcategories.create({
+      data: {
+        name,
+        description,
+        isActive,
+        categories: { connect: { id: Number(category_id) } },
+      },
     });
 
-    res.status(201).json(newSubcategory);
+    res.status(201).json(subcategory);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create subcategory" });
@@ -116,23 +110,15 @@ const updateSubcategory = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name, category_id } = req.body;
   const { id } = req.params;
+  const { name, category_id, description } = req.body;
 
   try {
-    // Validate category
-    const category = await prisma.category.findUnique({
-      where: { id: Number(category_id) },
-    });
-    if (!category) {
-      return res.status(400).json({ error: "Invalid category ID" });
-    }
-
-    // Check if subcategory exists
-    const current = await prisma.subcategories.findUnique({
+    const subcategory = await prisma.subcategories.findUnique({
       where: { id: Number(id) },
     });
-    if (!current) {
+
+    if (!subcategory) {
       return res.status(404).json({ error: "Subcategory not found" });
     }
 
@@ -140,8 +126,8 @@ const updateSubcategory = async (req, res) => {
       where: { id: Number(id) },
       data: {
         name,
-        categoryId: Number(category_id),
-        isActive: current.isActive,
+        description,
+        categories: { connect: { id: Number(category_id) } },
       },
     });
 
@@ -153,8 +139,11 @@ const updateSubcategory = async (req, res) => {
 };
 
 const deleteSubcategory = async (req, res) => {
+  const { id } = req.params;
   try {
-    await prisma.subcategories.delete({ where: { id: Number(req.params.id) } });
+    await prisma.subcategories.delete({
+      where: { id: Number(id) },
+    });
     res.status(200).json({ message: "Subcategory deleted successfully" });
   } catch (error) {
     if (error.code === "P2025") {
@@ -171,6 +160,7 @@ const toggleSubcategoryActive = async (req, res) => {
     const subcategory = await prisma.subcategories.findUnique({
       where: { id: Number(id) },
     });
+
     if (!subcategory) {
       return res.status(404).json({ error: "Subcategory not found" });
     }
