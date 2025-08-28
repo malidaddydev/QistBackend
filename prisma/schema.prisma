@@ -37,6 +37,16 @@ model ProductImage {
   @@index([product_id], map: "ProductImage_product_id_fkey")
 }
 
+
+model CategoryFile {
+  id         Int     @id @default(autoincrement())
+  url        String
+  category_id Int
+  category    categories @relation(fields: [category_id], references: [id])
+
+  @@index([category_id], map: "CategoryFile_category_id_fkey")
+}
+
 model ProductInstallments {
   id         Int     @id @default(autoincrement())
   minimum_installment_amount        Float
@@ -65,6 +75,7 @@ model categories {
   isActive      Boolean?        @default(true)
   Product       Product[]
   subcategories subcategories[]
+  file          CategoryFile[]
 }
 
 model subcategories {
