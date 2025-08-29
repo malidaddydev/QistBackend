@@ -15,6 +15,7 @@ const getCategories = async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
+    // Filters
     const where = {};
     if (search) {
       where.OR = [
@@ -26,10 +27,12 @@ const getCategories = async (req, res) => {
     if (status === "active") where.isActive = true;
     if (status === "inactive") where.isActive = false;
 
+    // Sorting
     const validSortFields = ["id", "name", "isActive"];
     const sortField = validSortFields.includes(sort) ? sort : "name";
     const sortOrder = order.toLowerCase() === "desc" ? "desc" : "asc";
 
+    // Fetch categories
     const categories = await prisma.categories.findMany({
       where,
       skip: Number(offset),
@@ -39,12 +42,10 @@ const getCategories = async (req, res) => {
         subcategories: {
           select: { id: true, name: true },
         },
-        file: {
-          select: { id: true, url: true },
-        },
       },
     });
 
+    // Count total
     const totalItems = await prisma.categories.count({ where });
 
     res.status(200).json({
@@ -71,9 +72,6 @@ const getOnlyTrueCategories = async (req, res) => {
           where: { isActive: true },
           select: { id: true, name: true },
         },
-        file: {
-          select: { id: true, url: true },
-        },
       },
     });
     res.status(200).json(categories);
@@ -89,26 +87,20 @@ const createCategory = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const uploadedFiles = req.files?.map((file) => ({
-    fileUrl: file.path,
-  })) || [];
+  const uploadedFiles=req.files?.map(()=>({
+    fileUrl:file.path
+  }))||[]
 
   const { name, description, isActive = true } = req.body;
   try {
     const newCategory = await prisma.categories.create({
-      data: {
-        name,
-        description,
-        isActive: Boolean(isActive),
-        file: {
-          create: uploadedFiles.map((f) => ({
-            url: f.fileUrl,
-          })),
-        },
-      },
-      include: {
-        file: true,
-      },
+      data: { name, description, isActive,
+        file:{
+          create:uploadedFiles.map((f)=>({
+            url:f.fileUrl
+          }))
+        }
+       },
     });
     res.status(201).json(newCategory);
   } catch (error) {
@@ -123,38 +115,18 @@ const updateCategory = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name, description, isActive } = req.body;
+  const { name, description } = req.body;
   const { id } = req.params;
 
-  const uploadedFiles = req.files?.map((file) => ({
-    fileUrl: file.path,
-  })) || [];
-
   try {
-    const category = await prisma.categories.findUnique({
-      where: { id: Number(id) },
-      include: { file: true },
-    });
+    const category = await prisma.categories.findUnique({ where: { id: Number(id) } });
     if (!category) {
       return res.status(404).json({ error: "Category not found" });
     }
 
     const updated = await prisma.categories.update({
       where: { id: Number(id) },
-      data: {
-        name,
-        description,
-        isActive: isActive !== undefined ? Boolean(isActive) : category.isActive,
-        file: {
-          deleteMany: uploadedFiles.length > 0 ? {} : undefined, // Delete existing files if new ones are uploaded
-          create: uploadedFiles.map((f) => ({
-            url: f.fileUrl,
-          })),
-        },
-      },
-      include: {
-        file: true,
-      },
+      data: { name, description, isActive: category.isActive },
     });
 
     res.status(200).json(updated);
@@ -188,9 +160,6 @@ const toggleCategoryActive = async (req, res) => {
     const updated = await prisma.categories.update({
       where: { id: Number(id) },
       data: { isActive: !category.isActive },
-      include: {
-        file: true,
-      },
     });
     res.status(200).json(updated);
   } catch (error) {
