@@ -8,27 +8,27 @@ const prisma = new PrismaClient();
 const createProduct = async (req, res) => {
   try {
     let formattedData = {}
-if (req.body.formattedData) {
-  try {
-    formattedData = JSON.parse(req.body.formattedData)
-  } catch (err) {
-    return res.status(400).json({ message: "Invalid formattedData" })
-  }
-}
+    if (req.body.formattedData) {
+      try {
+        formattedData = JSON.parse(req.body.formattedData)
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid formattedData" })
+      }
+    }
 
-const {
-  category_id,
-  subcategory_id,
-  name,
-  brand,
-  short_description,
-  long_description,
-  price,
-  stock,
-  status,
-  createdAt,
-  installments
-} = formattedData
+    const {
+      category_id,
+      subcategory_id,
+      name,
+      brand,
+      short_description,
+      long_description,
+      price,
+      stock,
+      status,
+      createdAt,
+      installments
+    } = formattedData
 
 
     const uploadedFiles = req.files?.map(file => ({
@@ -39,23 +39,6 @@ const {
     })) || [];
 
 
- let installmentsData = [];
-        
-        if (typeof installments === 'string') {
-            try {
-                installmentsData = JSON.parse(installments);
-            } catch (parseError) {
-                console.error('Error parsing installments:', parseError);
-                return res.status(400).json({ message: 'Invalid installments format' });
-            }
-        } else if (Array.isArray(installments)) {
-            installmentsData = installments;
-        }
-
-        // Validate installments data
-        if (!Array.isArray(installmentsData) || installmentsData.length === 0) {
-            return res.status(400).json({ message: 'At least one installment plan is required' });
-        }
 
 
 
