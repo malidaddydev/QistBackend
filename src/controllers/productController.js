@@ -16,6 +16,7 @@ const createProduct = async (req, res) => {
       long_description,
       price,
       stock,
+      status,
       createdAt,
       installments,
 
