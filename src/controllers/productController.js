@@ -18,7 +18,6 @@ const createProduct = async (req, res) => {
             stock,  
             createdAt,
             installments,
-            status
 
 
         } = req.body;
@@ -30,26 +29,10 @@ const createProduct = async (req, res) => {
             cloudinaryId: file.filename
         })) || [];
 
-        let installmentsData = [];
         
-        if (typeof installments === 'string') {
-            try {
-                installmentsData = JSON.parse(installments);
-            } catch (parseError) {
-                console.error('Error parsing installments:', parseError);
-                return res.status(400).json({ message: 'Invalid installments format' });
-            }
-        } else if (Array.isArray(installments)) {
-            installmentsData = installments;
-        }
-
-        // Validate installments data
-        if (!Array.isArray(installmentsData) || installmentsData.length === 0) {
-            return res.status(400).json({ message: 'At least one installment plan is required' });
-        }
 
 
-        
+       
 
         const productCreation = await prisma.product.create({
       data: {
@@ -74,7 +57,7 @@ const createProduct = async (req, res) => {
 
         ProductInstallments: {
           create:
-            installmentsData.map((ins) => ({
+            installments.map((ins) => ({
               totalPrice:ins.totalPrice,
               monthlyAmount:ins.monthlyAmount,
               advance:ins.advance,
