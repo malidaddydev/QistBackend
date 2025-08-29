@@ -66,7 +66,7 @@ const createProduct = async (req, res) => {
         createdAt,
         ProductImage: {
           create:
-            installmentsData.map((file) => ({
+            uploadedFiles.map((file) => ({
               url: file.filePath,
 
             }))
