@@ -7,21 +7,29 @@ const prisma = new PrismaClient();
 
 const createProduct = async (req, res) => {
   try {
-    const {
-      category_id,
-      subcategory_id,
-      name,
-      brand,
-      short_description,
-      long_description,
-      price,
-      stock,
-      status,
-      createdAt,
-      installments,
+    let formattedData = {}
+if (req.body.formattedData) {
+  try {
+    formattedData = JSON.parse(req.body.formattedData)
+  } catch (err) {
+    return res.status(400).json({ message: "Invalid formattedData" })
+  }
+}
 
+const {
+  category_id,
+  subcategory_id,
+  name,
+  brand,
+  short_description,
+  long_description,
+  price,
+  stock,
+  status,
+  createdAt,
+  installments
+} = formattedData
 
-    } = req.body;
 
     const uploadedFiles = req.files?.map(file => ({
       fileName: file.originalname,
@@ -75,7 +83,7 @@ const createProduct = async (req, res) => {
 
         ProductInstallments: {
           create:
-            installmentsData.map((ins) => ({
+            installments.map((ins) => ({
               totalPrice: ins.totalPrice,
               monthlyAmount: ins.monthlyAmount,
               advance: ins.advance,
