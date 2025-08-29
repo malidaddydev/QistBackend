@@ -8,7 +8,11 @@ const {
   updateSubcategory,
   deleteSubcategory,
   toggleSubcategoryActive,
+  getSubcategoriesByCategory,
 } = require('../controllers/subcategoryController');
+
+
+router.get('/plain-subcategories/:id', getSubcategoriesByCategory);
 
 router.get(
   '/subcategories',

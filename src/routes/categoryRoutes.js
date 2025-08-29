@@ -10,6 +10,7 @@ const {
   updateCategory,
   deleteCategory,
   toggleCategoryActive,
+  getAllPlainCategory,
 } = require('../controllers/categoryController');
 
 router.get(
@@ -27,6 +28,7 @@ router.get(
 );
 
 router.get('/categories', getOnlyTrueCategories);
+router.get('/plain-categories', getAllPlainCategory);
 
 router.post(
   '/categories',

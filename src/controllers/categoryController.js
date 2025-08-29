@@ -62,6 +62,26 @@ const getCategories = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch categories" });
   }
 };
+const getAllPlainCategory = async (req, res) => {
+  
+  try {
+    // Filters
+    
+
+    const categories = await prisma.categories.findMany({
+      select:{
+        name:true
+      }
+    });
+
+    // Count total
+
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch categories" });
+  }
+};
 
 const getOnlyTrueCategories = async (req, res) => {
   try {
@@ -175,4 +195,5 @@ module.exports = {
   updateCategory,
   deleteCategory,
   toggleCategoryActive,
+  getAllPlainCategory
 };

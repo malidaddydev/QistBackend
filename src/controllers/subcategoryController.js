@@ -81,6 +81,34 @@ const getSubcategories = async (req, res) => {
   }
 };
 
+
+const getSubcategoriesByCategory = async (req, res) => {
+  
+  const id=req.params.id
+
+
+  try {
+    // Filters
+    
+    const subcategories = await prisma.subcategories.findMany({
+      where:{category_id:parseInt(id)},
+      select: {
+        
+          name:true
+        
+      },
+    });
+
+    
+
+    res.status(200).json(subcategories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch subcategories" });
+  }
+};
+
+
 const createSubcategory = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -193,4 +221,5 @@ module.exports = {
   updateSubcategory,
   deleteSubcategory,
   toggleSubcategoryActive,
+  getSubcategoriesByCategory
 };
