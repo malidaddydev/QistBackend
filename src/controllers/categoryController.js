@@ -142,7 +142,7 @@ const updateCategory = async (req, res) => {
 
     const updated = await prisma.categories.update({
       where: { id: Number(id) },
-      data: { name, description, icon ,isActive: category.isActive },
+      data: { name, description, icon   ,isActive: category.isActive },
     });
 
     res.status(200).json(updated);

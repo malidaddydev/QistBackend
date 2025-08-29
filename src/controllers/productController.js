@@ -31,6 +31,23 @@ const createProduct = async (req, res) => {
     })) || [];
 
 
+ let installmentsData = [];
+        
+        if (typeof installments === 'string') {
+            try {
+                installmentsData = JSON.parse(installments);
+            } catch (parseError) {
+                console.error('Error parsing installments:', parseError);
+                return res.status(400).json({ message: 'Invalid installments format' });
+            }
+        } else if (Array.isArray(installments)) {
+            installmentsData = installments;
+        }
+
+        // Validate installments data
+        if (!Array.isArray(installmentsData) || installmentsData.length === 0) {
+            return res.status(400).json({ message: 'At least one installment plan is required' });
+        }
 
 
 
@@ -49,7 +66,7 @@ const createProduct = async (req, res) => {
         createdAt,
         ProductImage: {
           create:
-            uploadedFiles.map((file) => ({
+            installmentsData.map((file) => ({
               url: file.filePath,
 
             }))
