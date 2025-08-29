@@ -93,7 +93,7 @@ const getSubcategoriesByCategory = async (req, res) => {
     const subcategories = await prisma.subcategories.findMany({
       where:{category_id:parseInt(id)},
       select: {
-        
+          id:true,
           name:true
         
       },
