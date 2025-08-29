@@ -109,19 +109,13 @@ const createCategory = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const uploadedFiles=req.files?.map(()=>({
-    fileUrl:file.path
-  }))||[]
+  
 
-  const { name, description, isActive = true } = req.body;
+  const { name, description, isActive,icon = true } = req.body;
   try {
     const newCategory = await prisma.categories.create({
-      data: { name, description, isActive,
-        file:{
-          create:uploadedFiles.map((f)=>({
-            url:f.fileUrl
-          }))
-        }
+      data: { name, description, isActive,icon
+       
        },
     });
     res.status(201).json(newCategory);
