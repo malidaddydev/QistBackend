@@ -75,7 +75,7 @@ const createProduct = async (req, res) => {
 
         ProductInstallments: {
           create:
-            installments.map((ins) => ({
+            installmentsData.map((ins) => ({
               totalPrice: ins.totalPrice,
               monthlyAmount: ins.monthlyAmount,
               advance: ins.advance,
