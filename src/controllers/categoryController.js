@@ -111,7 +111,7 @@ const createCategory = async (req, res) => {
 
   
 
-  const { name, description, isActive,icon = true } = req.body;
+  const { name, description, isActive=true,icon  } = req.body;
   try {
     const newCategory = await prisma.categories.create({
       data: { name, description, isActive,icon
