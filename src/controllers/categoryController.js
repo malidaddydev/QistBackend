@@ -70,7 +70,9 @@ const getAllPlainCategory = async (req, res) => {
 
     const categories = await prisma.categories.findMany({
       select:{
-        name:true
+        id:true,
+        name:true,
+
       }
     });
 
