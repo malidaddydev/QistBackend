@@ -16,10 +16,11 @@ model Product {
   short_description String?
   long_description  String?        @db.Text
   price             Float
-  stock             Int            @default(0)
+  stock             Boolean      @default(true)
   createdAt         DateTime?       @default(now())
   updatedAt         DateTime ?       @default(now())
   categories        categories?    @relation(fields: [category_id], references: [id])
+  is_approved       Boolean @default(false) 
   subcategories     subcategories? @relation(fields: [subcategory_id], references: [id])
   ProductImage      ProductImage[]
   ProductInstallments      ProductInstallments[]
