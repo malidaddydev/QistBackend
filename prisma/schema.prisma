@@ -13,9 +13,9 @@ model Product {
   subcategory_id    Int?
   name              String
   brand             String?
+  status            Boolean @default(false)
   short_description String?
   long_description  String?        @db.Text
-  price             Float
   stock             Boolean      @default(true)
   createdAt         DateTime?       @default(now())
   updatedAt         DateTime ?       @default(now())
@@ -33,7 +33,7 @@ model ProductImage {
   id         Int     @id @default(autoincrement())
   url        String
   product_id Int
-  Product    Product @relation(fields: [product_id], references: [id])
+  Product    Product @relation(fields: [product_id], references: [id],onDelete:Cascade)
 
   @@index([product_id], map: "ProductImage_product_id_fkey")
 }
@@ -43,8 +43,11 @@ model ProductImage {
 
 model ProductInstallments {
   id         Int     @id @default(autoincrement())
-  minimum_installment_amount        Float
-  maximum_installment_month        Int
+  totalPrice         Float
+  monthlyAmount      Float
+  advance            Float
+  months             Int
+  isActive           Boolean?        @default(true)
   product_id Int
   Product    Product @relation(fields: [product_id], references: [id])
   
@@ -86,3 +89,5 @@ model subcategories {
 
   @@index([category_id], map: "category_id")
 }
+
+

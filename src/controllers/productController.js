@@ -6,78 +6,71 @@ const prisma = new PrismaClient();
 
 
 const createProduct = async (req, res) => {
-    try {
-        const {
-            category_id,
-            subcategory_id,
-            name,
-            brand,
-            short_description,
-            long_description,
-            price,
-            stock,  
-            createdAt,
-            installments,
+  try {
+    const {
+      category_id,
+      subcategory_id,
+      name,
+      brand,
+      short_description,
+      long_description,
+      // price,
+      stock,
+      status,
+      createdAt,
+      installments,
 
 
-        } = req.body;
-
-        const uploadedFiles = req.files?.map(file => ({
-            fileName: file.originalname,
-            filePath: file.path,
-            size: file.size,
-            cloudinaryId: file.filename
-        })) || [];
-
-        let installmentsData = []
-
-        installmentsData = JSON.parse(installments)
+    } = req.body;
 
 
-        const productCreation = await prisma.product.create({
-            data: {
-                category_id: parseInt(category_id),
-                subcategory_id: parseInt(subcategory_id),
-                name,
-                brand,
-                short_description,
-                long_description,
-                price: parseFloat(price),
-                stock: parseInt(stock),
-                createdAt,
-                ProductImage: {
-                    create:
-                        uploadedFiles.map((file) => ({
-                            url: file.filePath,
+    let installmentsData = []
 
-                        }))
-
-                },
-                ProductInstallments: {
-                    create:
-                        installmentsData.map((ins) => ({
-                            minimum_installment_amount: ins.amount,
-                            maximum_installment_month: ins.month
+    installmentsData = JSON.parse(installments)
 
 
-                        }))
+    const productCreation = await prisma.product.create({
+      data: {
+        category_id: parseInt(category_id),
+        subcategory_id: parseInt(subcategory_id),
+        name,
+        status,
+        brand,
+        short_description,
+        long_description,
+        // price: parseFloat(price),
+        stock: parseInt(stock),
+        createdAt,
 
-                }
-            }
+        ProductInstallments: {
+          create:
+            installmentsData.map((ins) => ({
+              totalPrice:ins.totalPrice,
+              monthlyAmount:ins.monthlyAmount,
+              advance:ins.advance,
+              months:ins.months,
+              isActive:true,
+              
 
 
-        })
+            }))
+
+        }
+      }
+
+
+    })
 
 
 
-        res.status(201).json(productCreation)
+    res.status(201).json(productCreation)
 
 
 
-    } catch (error) {
-        console.error('Error creating order:', error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
 
 }
 
@@ -162,4 +155,4 @@ const getAllProducts = async (req, res) => {
 
 
 
-module.exports = { createProduct,getAllProducts,getProductById }
+module.exports = { createProduct, getAllProducts, getProductById }
