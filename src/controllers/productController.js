@@ -6,30 +6,37 @@ const prisma = new PrismaClient();
 
 
 const createProduct = async (req, res) => {
-  try {
-    const {
-      category_id,
-      subcategory_id,
-      name,
-      brand,
-      short_description,
-      long_description,
-      // price,
-      stock,
-      status,
-      createdAt,
-      installments,
+    try {
+        const {
+            category_id,
+            subcategory_id,
+            name,
+            brand,
+            short_description,
+            long_description,
+            price,
+            stock,  
+            createdAt,
+            installments,
 
 
-    } = req.body;
+        } = req.body;
+
+        const uploadedFiles = req.files?.map(file => ({
+            fileName: file.originalname,
+            filePath: file.path,
+            size: file.size,
+            cloudinaryId: file.filename
+        })) || [];
+
+        let installmentsData = []
+
+        installmentsData = JSON.parse(installments)
 
 
-    let installmentsData = []
+        
 
-    installmentsData = JSON.parse(installments)
-
-
-    const productCreation = await prisma.product.create({
+        const productCreation = await prisma.product.create({
       data: {
         category_id: parseInt(category_id),
         subcategory_id: parseInt(subcategory_id),
@@ -41,6 +48,14 @@ const createProduct = async (req, res) => {
         // price: parseFloat(price),
         stock: parseInt(stock),
         createdAt,
+         ProductImage: {
+                    create:
+                        uploadedFiles.map((file) => ({
+                            url: file.filePath,
+
+                        }))
+
+                },
 
         ProductInstallments: {
           create:
@@ -62,15 +77,14 @@ const createProduct = async (req, res) => {
     })
 
 
-
-    res.status(201).json(productCreation)
-
+        res.status(201).json(productCreation)
 
 
-  } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
+
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
 
 }
 
@@ -155,4 +169,4 @@ const getAllProducts = async (req, res) => {
 
 
 
-module.exports = { createProduct, getAllProducts, getProductById }
+module.exports = { createProduct,getAllProducts,getProductById }
