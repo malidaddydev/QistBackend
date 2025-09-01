@@ -6,11 +6,11 @@ const createDealOfTheDay = async (req, res) => {
 
     try {
 
-        const { name, endDate } = req.body
-        let products = {}
+        const { name, endDate,products } = req.body
+        let productsData = {}
         if (req.body.products) {
             try {
-                products = JSON.parse(req.body.formattedData)
+                productsData = JSON.parse(req.body.products)
             } catch (err) {
                 return res.status(400).json({ message: "Invalid formattedData" })
             }
@@ -22,7 +22,7 @@ const createDealOfTheDay = async (req, res) => {
                 start_date: new Date(),
                 end_date: new Date(endDate),
                 products: {
-                    create: products.map((fd) => (
+                    create: productsData.map((fd) => (
                         {
                             product_id: fd.product_id,
                             dealPrice: fd.dealPrice,
