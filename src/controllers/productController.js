@@ -39,7 +39,9 @@ const createProduct = async (req, res) => {
     })) || [];
 
 
-
+    const slug=name.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // non-alphanumeric ko - bana do
+    .replace(/^-+|-+$/g, ''); // shuru/akhir ke - hata do
 
 
 
@@ -48,6 +50,7 @@ const createProduct = async (req, res) => {
         category_id: parseInt(category_id),
         subcategory_id: parseInt(subcategory_id),
         name,
+        slugName:slug,
         status,
         brand,
         short_description,
@@ -152,7 +155,7 @@ const getProductByName = async (req, res) => {
     const { name } = req.params;
 
     const product = await prisma.product.findFirst({
-      where: { name: String(name) },
+      where: { slugName: String(name) },
       include: {
         ProductImage: true,
         ProductInstallments: true,
