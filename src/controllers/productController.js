@@ -39,9 +39,9 @@ const createProduct = async (req, res) => {
     })) || [];
 
 
-    const slug=name.toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') // non-alphanumeric ko - bana do
-    .replace(/^-+|-+$/g, ''); // shuru/akhir ke - hata do
+    const slug = name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // non-alphanumeric ko - bana do
+      .replace(/^-+|-+$/g, ''); // shuru/akhir ke - hata do
 
 
 
@@ -50,7 +50,7 @@ const createProduct = async (req, res) => {
         category_id: parseInt(category_id),
         subcategory_id: parseInt(subcategory_id),
         name,
-        slugName:slug,
+        slugName: slug,
         status,
         brand,
         short_description,
@@ -213,5 +213,143 @@ const getAllProducts = async (req, res) => {
 
 
 
+const updateProduct = async (req, res) => {
+  try {
+   
+    const {
+      id,
+      category_id,
+      subcategory_id,
+      name,
+      brand,
+      short_description,
+      long_description,
+      stock,
+      status,
+      installments
+    } = req.body
 
-module.exports = { createProduct, getAllProducts, getProductById,getProductByName }
+
+    const uploadedFiles = req.files?.map(file => ({
+      fileName: file.originalname,
+      filePath: file.path,
+      size: file.size,
+      cloudinaryId: file.filename
+    })) || [];
+
+
+
+
+
+    const productUpdation = await prisma.product.update({
+      where: { id: parseInt(id) },
+      data: {
+        category_id,
+        subcategory_id,
+        name,
+        status,
+        brand,
+        short_description,
+        long_description,
+        stock,
+        updatedAt,
+      }
+
+
+
+    })
+
+    
+
+
+
+    const enriched = await Promise.all(
+
+      uploadedFiles.map(async (file) => {
+
+        await prisma.productImage.create({
+          where: { product_id: parseInt(id) },
+          data: {
+            url: file.filePath,
+          }
+
+        })
+
+      })
+
+    )
+    
+
+    const enriched2 = await Promise.all(
+
+      installments.map(async(ins) => {
+  
+        const productInstallments = await prisma.productInstallments.create({
+          where: { product_id: parseInt(id) },
+          data: {
+              totalPrice: ins.totalPrice,
+              monthlyAmount: ins.monthlyAmount,
+              advance: ins.advance,
+              months: ins.months,
+             
+          }
+        })
+  
+      })
+    )
+
+
+
+    
+    res.status(201).json(productUpdation)
+
+
+
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+
+}
+
+const toggleProductField = async (req, res) => {
+  try {
+    const { id } = req.params;       // product id from URL
+    const { field } = req.body;      // which field to toggle: "stock" or "status"
+
+    if (!["stock", "status"].includes(field)) {
+      return res.status(400).json({ error: "Invalid field. Must be 'stock' or 'status'." });
+    }
+
+    // Get current product
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Toggle the field
+    const updatedProduct = await prisma.product.update({
+      where: { id: parseInt(id) },
+      data: {
+        [field]: !product[field],   // invert the boolean value
+        updatedAt: new Date(),      // update timestamp
+      },
+    });
+
+    res.json({
+      message: `${field} toggled successfully`,
+      product: updatedProduct,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+
+
+module.exports = { createProduct, getAllProducts, getProductById, getProductByName,toggleProductField }
