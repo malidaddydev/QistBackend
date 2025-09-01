@@ -151,7 +151,7 @@ const getProductByName = async (req, res) => {
   try {
     const { name } = req.params;
 
-    const product = await prisma.product.findUnique({
+    const product = await prisma.product.findFirst({
       where: { name: String(name) },
       include: {
         ProductImage: true,
