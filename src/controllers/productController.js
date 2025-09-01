@@ -146,6 +146,41 @@ const getProductById = async (req, res) => {
   }
 };
 
+
+const getProductByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    const product = await prisma.product.findUnique({
+      where: { name: String(name) },
+      include: {
+        ProductImage: true,
+        ProductInstallments: true,
+        categories: { select: { name: true } },
+        subcategories: { select: { name: true } },
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Flatten category/subcategory name if needed
+    const response = {
+      ...product,
+      category_name: product.category?.name || null,
+      subcategory_name: product.subcategory?.name || null,
+      category: undefined,
+      subcategory: undefined,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
 // ---------- Get All Products ----------
 const getAllProducts = async (req, res) => {
   try {
@@ -176,4 +211,4 @@ const getAllProducts = async (req, res) => {
 
 
 
-module.exports = { createProduct, getAllProducts, getProductById }
+module.exports = { createProduct, getAllProducts, getProductById,getProductByName }
