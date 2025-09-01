@@ -8,19 +8,21 @@ const createDealOfTheDay = async (req, res) => {
 
         const { name, endDate,products } = req.body
         let productsData = {}
-        if (req.body.products) {
-            try {
-                productsData = JSON.parse(req.body.products)
-            } catch (err) {
-                return res.status(400).json({ message: "Invalid formattedData" })
+         if (products) {
+            // If it's a string, parse it
+            if (typeof products === "string") {
+                productsData = JSON.parse(products);
+            } else {
+                // Already an array
+                productsData = products;
             }
         }
 
         const dealCreation = await prisma.dealOfTheDay.create({
             data: {
                 title: name,
-                start_date: new Date(),
-                end_date: new Date(endDate),
+                startDate: new Date(),
+                endDate: new Date(endDate),
                 products: {
                     create: productsData.map((fd) => (
                         {
