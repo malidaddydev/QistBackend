@@ -21,6 +21,7 @@ model Product {
   updatedAt         DateTime ?       @default(now())
   is_approved       Boolean @default(false) 
   ProductInstallments      ProductInstallments[]
+  deals                     DealProduct[]
   categories        categories?    @relation(fields: [category_id], references: [id])
   subcategories     subcategories? @relation(fields: [subcategory_id], references: [id])
   
@@ -93,3 +94,26 @@ model subcategories {
 }
 
 
+model DealOfTheDay {
+  id         Int        @id @default(autoincrement())
+  title      String?    
+  startDate DateTime   @default(now())
+  endDate   DateTime
+  isActive   Boolean    @default(true)
+
+  products   DealProduct[]
+}
+
+model DealProduct {
+  id        Int      @id @default(autoincrement())
+  deal_id   Int
+  product_id Int
+  dealPrice Float?   // optional, custom price per product
+  discount   Float?   // optional, % discount per product
+
+  DealOfTheDay DealOfTheDay @relation(fields: [deal_id], references: [id], onDelete: Cascade)
+  Product      Product      @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([deal_id])
+  @@index([product_id])
+}
