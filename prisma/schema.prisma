@@ -12,7 +12,7 @@ model Product {
   category_id       Int?
   subcategory_id    Int?
   name              String
-  slugName          String
+  slugName          String?
   brand             String?
   status            Boolean @default(false)
   short_description String?
@@ -26,8 +26,8 @@ model Product {
   
   ProductInstallments      ProductInstallments[]
   deals                     DealProduct[]
-  categories        categories?    @relation(fields: [category_id], references: [id])
-  subcategories     subcategories? @relation(fields: [subcategory_id], references: [id])
+  categories        categories?    @relation(fields: [category_id], references: [id],onDelete:Cascade)
+  subcategories     subcategories? @relation(fields: [subcategory_id], references: [id],onDelete:Cascade)
   
   
   @@index([category_id], map: "Product_category_id_fkey")
@@ -56,7 +56,7 @@ model ProductInstallments {
   months             Int
   isActive           Boolean?        @default(true)
   product_id Int
-  Product    Product @relation(fields: [product_id], references: [id])
+  Product    Product @relation(fields: [product_id], references: [id],onDelete:Cascade)
   
 
   @@index([product_id], map: "ProductImage_product_id_fkey")
