@@ -113,8 +113,12 @@ const createCategory = async (req, res) => {
 
   const { name, description, isActive=true,icon  } = req.body;
   try {
+
+    const slug=name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // non-alphanumeric ko - bana do
+      .replace(/^-+|-+$/g, '');
     const newCategory = await prisma.categories.create({
-      data: { name, description, isActive,icon
+      data: { name, description, isActive,icon,slugName:slug
        
        },
     });
@@ -183,6 +187,8 @@ const toggleCategoryActive = async (req, res) => {
     res.status(500).json({ error: "Failed to toggle category status" });
   }
 };
+
+
 
 module.exports = {
   getCategories,

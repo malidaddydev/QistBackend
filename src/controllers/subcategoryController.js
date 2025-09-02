@@ -114,6 +114,9 @@ const createSubcategory = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  const slug=name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // non-alphanumeric ko - bana do
+      .replace(/^-+|-+$/g, '');
 
   const { name, category_id, description, isActive = true } = req.body;
 
@@ -132,6 +135,7 @@ const createSubcategory = async (req, res) => {
         description,
         isActive,
         categories: { connect: { id: Number(category_id) } },
+        slugName:slug,
       },
     });
 

@@ -237,10 +237,6 @@ const updateProduct = async (req, res) => {
       cloudinaryId: file.filename
     })) || [];
 
-
-
-
-
     const productUpdation = await prisma.product.update({
       where: { id: parseInt(id) },
       data: {
@@ -254,14 +250,7 @@ const updateProduct = async (req, res) => {
         stock,
         updatedAt,
       }
-
-
-
     })
-
-    
-
-
 
     const enriched = await Promise.all(
 
@@ -272,11 +261,8 @@ const updateProduct = async (req, res) => {
           data: {
             url: file.filePath,
           }
-
         })
-
       })
-
     )
     
 
@@ -298,9 +284,6 @@ const updateProduct = async (req, res) => {
       })
     )
 
-
-
-    
     res.status(201).json(productUpdation)
 
 
@@ -352,4 +335,4 @@ const toggleProductField = async (req, res) => {
 
 
 
-module.exports = { createProduct, getAllProducts, getProductById, getProductByName,toggleProductField }
+module.exports = { createProduct, getAllProducts, getProductById, getProductByName,toggleProductField,updateProduct }
