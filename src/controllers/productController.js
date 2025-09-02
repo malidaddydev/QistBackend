@@ -369,10 +369,12 @@ const toggleProductField = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
+    let  updatedProduct=null;
+
     // Toggle the field
     if (stock) {
       
-      const updatedProduct = await prisma.product.update({
+       updatedProduct = await prisma.product.update({
         where: { id: parseInt(id) },
         data: {
            stock,
@@ -384,7 +386,7 @@ const toggleProductField = async (req, res) => {
     
     if (status) {
       
-      const updatedProduct = await prisma.product.update({
+      updatedProduct = await prisma.product.update({
         where: { id: parseInt(id) },
         data: {
            
@@ -397,7 +399,7 @@ const toggleProductField = async (req, res) => {
     
 
     res.json({
-      message: `${field} toggled successfully`,
+      message: `toggled successfully`,
       product: updatedProduct,
     });
 
