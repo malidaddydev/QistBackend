@@ -356,10 +356,7 @@ const toggleProductField = async (req, res) => {
     const { id } = req.params;       // product id from URL
     const { stock,status } = req.body;      // which field to toggle: "stock" or "status"
 
-    if (!["stock", "status"].includes(field)) {
-      return res.status(400).json({ error: "Invalid field. Must be 'stock' or 'status'." });
-    }
-
+    
     // Get current product
     const product = await prisma.product.findUnique({
       where: { id: parseInt(id) },
