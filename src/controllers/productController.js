@@ -145,13 +145,11 @@ const getProductPagination = async (req, res) => {
       },
     });
 
-    const response = {
-      ...products,
-      category_name: products.categories?.name || null,
-      subcategory_name: products.subcategories?.name || null,
-      category: undefined,
-      subcategory: undefined,
-    };  
+    const response = products.map((p)=>({
+      ...p,
+      category_name:p.categories?.name,
+      subcategory_name:p.subcategories?.name,
+    }));  
     // Count total
     const totalItems = await prisma.product.count({ where });
 
