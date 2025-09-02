@@ -25,6 +25,7 @@ const getSubcategories = async (req, res) => {
       where.AND.push({
         OR: [
           { name: { contains: search, mode: "insensitive" } },
+          { slugName: { contains: search, mode: "insensitive" } },
           { categories: { name: { contains: search, mode: "insensitive" } } },
           { id: isNaN(search) ? undefined : Number(search) },
         ],
@@ -122,7 +123,7 @@ const createSubcategory = async (req, res) => {
 
   try {
     // Check category exists
-    const category = await prisma.categories.findUnique({
+    const category = await prisma.categories.findFirst({
       where: { id: Number(category_id) },
     });
     if (!category) {

@@ -99,20 +99,66 @@ const createProduct = async (req, res) => {
 }
 
 
-// {
-//   "category_id": 1,
-//   "subcategory_id": 2,
-//   "name": "Samsung LED TV",
-//   "brand": "Samsung",
-//   "short_description": "Smart TV 40 inch",
-//   "long_description": "Samsung Smart TV with HDR",
-//   "price": 400,
-//   "stock": 20,
-//   "installments": [
-//     { "amount": 100, "month": 6 },
-//     { "amount": 50, "month": 12 }
-//   ]
-// }
+const getProductPagination = async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    status = "all",
+    sort = "name",
+    order = "asc",
+  } = req.query;
+  const offset = (page - 1) * limit;
+
+  try {
+    // Filters
+    const where = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { slugName: { contains: search } },
+        { brand: { contains: search } },
+        { id: isNaN(search) ? undefined : Number(search) },
+      ].filter(Boolean);
+    }
+    if (status === "active") where.isActive = true;
+    if (status === "inactive") where.isActive = false;
+
+    // Sorting
+    const validSortFields = ["id", "name", "isActive"];
+    const sortField = validSortFields.includes(sort) ? sort : "name";
+    const sortOrder = order.toLowerCase() === "desc" ? "desc" : "asc";
+
+    // Fetch categories
+    const categories = await prisma.categories.findMany({
+      where,
+      skip: Number(offset),
+      take: Number(limit),
+      orderBy: { [sortField]: sortOrder },
+      include: {
+        subcategories: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    // Count total
+    const totalItems = await prisma.categories.count({ where });
+
+    res.status(200).json({
+      data: categories,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: Number(page),
+        limit: Number(limit),
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch categories" });
+  }
+};
 
 
 const getProductById = async (req, res) => {

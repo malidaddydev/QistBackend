@@ -20,6 +20,7 @@ const getCategories = async (req, res) => {
     if (search) {
       where.OR = [
         { name: { contains: search } },
+        { slugName: { contains: search } },
         { description: { contains: search } },
         { id: isNaN(search) ? undefined : Number(search) },
       ].filter(Boolean);
