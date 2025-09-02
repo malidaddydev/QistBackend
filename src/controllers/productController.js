@@ -142,6 +142,8 @@ const getProductPagination = async (req, res) => {
         subcategories: {
           select: { id: true, name: true, },
         },
+        ProductImage: true,
+        ProductInstallments: true,
       },
     });
 
