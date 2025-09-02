@@ -153,7 +153,7 @@ const getProductPagination = async (req, res) => {
       subcategory: undefined,
     };
     // Count total
-    const totalItems = await prisma.products.count({ where });
+    const totalItems = await prisma.product.count({ where });
 
     res.status(200).json({
       data: response,
