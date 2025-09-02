@@ -130,23 +130,33 @@ const getProductPagination = async (req, res) => {
     const sortOrder = order.toLowerCase() === "desc" ? "desc" : "asc";
 
     // Fetch categories
-    const categories = await prisma.categories.findMany({
+    const products = await prisma.product.findMany({
       where,
       skip: Number(offset),
       take: Number(limit),
       orderBy: { [sortField]: sortOrder },
       include: {
+        categories: {
+          select: { id: true, name: true, },
+        },
         subcategories: {
-          select: { id: true, name: true },
+          select: { id: true, name: true, },
         },
       },
     });
 
+    const response = {
+      ...products,
+      category_name: products.category?.name || null,
+      subcategory_name: products.subcategory?.name || null,
+      category: undefined,
+      subcategory: undefined,
+    };
     // Count total
-    const totalItems = await prisma.categories.count({ where });
+    const totalItems = await prisma.products.count({ where });
 
     res.status(200).json({
-      data: categories,
+      data: response,
       pagination: {
         totalItems,
         totalPages: Math.ceil(totalItems / limit),
