@@ -369,7 +369,7 @@ const toggleProductField = async (req, res) => {
     let  updatedProduct=null;
 
     // Toggle the field
-    if (stock) {
+    if (stock!== undefined) {
       
        updatedProduct = await prisma.product.update({
         where: { id: parseInt(id) },
@@ -381,7 +381,7 @@ const toggleProductField = async (req, res) => {
       });
     }
     
-    if (status) {
+    if (status!== undefined) {
       
       updatedProduct = await prisma.product.update({
         where: { id: parseInt(id) },
