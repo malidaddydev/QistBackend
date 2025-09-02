@@ -381,4 +381,4 @@ const toggleProductField = async (req, res) => {
 
 
 
-module.exports = { createProduct, getAllProducts, getProductById, getProductByName,toggleProductField,updateProduct }
+module.exports = { createProduct, getAllProducts, getProductById, getProductByName,toggleProductField,updateProduct,getProductPagination }
