@@ -354,7 +354,7 @@ const updateProduct = async (req, res) => {
 const toggleProductField = async (req, res) => {
   try {
     const { id } = req.params;       // product id from URL
-    const { field } = req.body;      // which field to toggle: "stock" or "status"
+    const { stock,status } = req.body;      // which field to toggle: "stock" or "status"
 
     if (!["stock", "status"].includes(field)) {
       return res.status(400).json({ error: "Invalid field. Must be 'stock' or 'status'." });
@@ -370,13 +370,31 @@ const toggleProductField = async (req, res) => {
     }
 
     // Toggle the field
-    const updatedProduct = await prisma.product.update({
-      where: { id: parseInt(id) },
-      data: {
-        [field]: !product[field],   // invert the boolean value
-        updatedAt: new Date(),      // update timestamp
-      },
-    });
+    if (stock) {
+      
+      const updatedProduct = await prisma.product.update({
+        where: { id: parseInt(id) },
+        data: {
+           stock,
+             
+           updatedAt: new Date(),      // update timestamp
+        },
+      });
+    }
+    
+    if (status) {
+      
+      const updatedProduct = await prisma.product.update({
+        where: { id: parseInt(id) },
+        data: {
+           
+           status,  
+           updatedAt: new Date(),      // update timestamp
+        },
+      });
+    }
+    
+    
 
     res.json({
       message: `${field} toggled successfully`,
