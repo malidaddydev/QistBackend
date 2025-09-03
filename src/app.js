@@ -4,6 +4,7 @@ const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const subcategoryRoutes = require('./routes/subcategoryRoutes');
 const productRoutes = require('./routes/productRoutes');
+const productInstallmentRoutes = require('./routes/productInstallmentRoutes');
 const dealRoutes = require('./routes/dealRoutes');
 require('dotenv').config();
 
@@ -22,6 +23,7 @@ app.use('/api', categoryRoutes);
 app.use('/api', subcategoryRoutes);
 app.use('/api', productRoutes);
 app.use('/api', dealRoutes);
+app.use('/api', productInstallmentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
