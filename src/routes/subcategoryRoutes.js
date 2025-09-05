@@ -10,6 +10,7 @@ const {
   toggleSubcategoryActive,
   getSubcategoriesByCategory,
   getOnlyTrueSubCategories,
+  getOnlyTrueSubCategories,
 } = require('../controllers/subcategoryController');
 
 
@@ -55,6 +56,7 @@ router.put(
 );
 
 router.patch('/subcategories/:id/toggle', authenticateToken, toggleSubcategoryActive);
+router.get('/subcategories/active', getOnlyTrueSubCategories );
 
 router.delete('/subcategories/:id', authenticateToken, deleteSubcategory);
 
