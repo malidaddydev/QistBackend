@@ -25,6 +25,7 @@ const getSubcategories = async (req, res) => {
       where.AND.push({
         OR: [
           { name: { contains: search, mode: "insensitive" } },
+          { slugName: { contains: search, mode: "insensitive" } },
           { categories: { name: { contains: search, mode: "insensitive" } } },
           { id: isNaN(search) ? undefined : Number(search) },
         ],
@@ -81,17 +82,48 @@ const getSubcategories = async (req, res) => {
   }
 };
 
+
+const getSubcategoriesByCategory = async (req, res) => {
+  
+  const id=req.params.id
+
+
+  try {
+    // Filters
+    
+    const subcategories = await prisma.subcategories.findMany({
+      where:{category_id:parseInt(id)},
+      select: {
+          id:true,
+          name:true
+        
+      },
+    });
+
+    
+
+    res.status(200).json(subcategories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch subcategories" });
+  }
+};
+
+
 const createSubcategory = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-
+  
   const { name, category_id, description, isActive = true } = req.body;
-
+  
+  const slug=name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // non-alphanumeric ko - bana do
+      .replace(/^-+|-+$/g, '');
   try {
     // Check category exists
-    const category = await prisma.categories.findUnique({
+    const category = await prisma.categories.findFirst({
       where: { id: Number(category_id) },
     });
     if (!category) {
@@ -104,6 +136,7 @@ const createSubcategory = async (req, res) => {
         description,
         isActive,
         categories: { connect: { id: Number(category_id) } },
+        slugName:slug,
       },
     });
 
@@ -187,10 +220,24 @@ const toggleSubcategoryActive = async (req, res) => {
   }
 };
 
+const getOnlyTrueSubCategories = async (req, res) => {
+  try {
+    const categories = await prisma.subcategories.findMany({
+      where: { isActive: true },
+    });
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch categories" });
+  }
+};
+
 module.exports = {
   getSubcategories,
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
   toggleSubcategoryActive,
+  getSubcategoriesByCategory,
+  getOnlyTrueSubCategories
 };
