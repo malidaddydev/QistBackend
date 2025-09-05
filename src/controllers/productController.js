@@ -103,56 +103,57 @@ const getProductPagination = async (req, res) => {
   const {
     page = 1,
     limit = 10,
-    search = "",
-    status = "all",
+    subcategory_id,
+    minPrice,
+    maxPrice,
     sort = "name",
     order = "asc",
   } = req.query;
   const offset = (page - 1) * limit;
 
   try {
-    // Filters
     const where = {};
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { slugName: { contains: search } },
-        { brand: { contains: search } },
-        { id: isNaN(search) ? undefined : Number(search) },
-      ].filter(Boolean);
+    if (subcategory_id) {
+      where.subcategory_id = parseInt(subcategory_id);
     }
-    if (status === "active") where.isActive = true;
-    if (status === "inactive") where.isActive = false;
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      where.ProductInstallments = {
+        some: {
+          advance: {
+            gte: parseFloat(minPrice),
+            lte: parseFloat(maxPrice),
+          },
+        },
+      };
+    }
 
-    // Sorting
-    const validSortFields = ["id", "name", "isActive"];
+    const validSortFields = ["name"];
     const sortField = validSortFields.includes(sort) ? sort : "name";
     const sortOrder = order.toLowerCase() === "desc" ? "desc" : "asc";
 
-    // Fetch categories
     const products = await prisma.product.findMany({
       where,
       skip: Number(offset),
       take: Number(limit),
       orderBy: { [sortField]: sortOrder },
       include: {
-        categories: {
-          select: { id: true, name: true, },
-        },
-        subcategories: {
-          select: { id: true, name: true, },
-        },
+        categories: { select: { id: true, name: true } },
+        subcategories: { select: { id: true, name: true } },
         ProductImage: true,
-        ProductInstallments: true,
+        ProductInstallments: {
+          orderBy: { id: "desc" },
+          take: 1,
+        },
       },
     });
 
-    const response = products.map((p)=>({
+    const response = products.map((p) => ({
       ...p,
-      category_name:p.categories?.name,
-      subcategory_name:p.subcategories?.name,
-    }));  
-    // Count total
+      category_name: p.categories?.name,
+      subcategory_name: p.subcategories?.name,
+      advance: p.ProductInstallments[0]?.advance || 0,
+    }));
+
     const totalItems = await prisma.product.count({ where });
 
     res.status(200).json({
@@ -166,42 +167,7 @@ const getProductPagination = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to fetch categories" });
-  }
-};
-
-
-const getProductById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        ProductImage: true,
-        ProductInstallments: true,
-        categories: { select: { name: true } },
-        subcategories: { select: { name: true } },
-      },
-    });
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    // Flatten category/subcategory name if needed
-    const response = {
-      ...product,
-      category_name: product.category?.name || null,
-      subcategory_name: product.subcategory?.name || null,
-      category: undefined,
-      subcategory: undefined,
-    };
-
-    res.json(response);
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 };
 
