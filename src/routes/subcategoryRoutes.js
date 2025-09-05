@@ -9,6 +9,7 @@ const {
   deleteSubcategory,
   toggleSubcategoryActive,
   getSubcategoriesByCategory,
+  getOnlyTrueSubCategories,
 } = require('../controllers/subcategoryController');
 
 
@@ -27,6 +28,8 @@ router.get(
   ],
   getSubcategories
 );
+
+router.get('/subcategories/active', getOnlyTrueSubCategories );
 
 router.post(
   '/subcategories',
